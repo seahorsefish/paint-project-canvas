@@ -19,7 +19,7 @@
   var y;
 
   var init = function() {
-    canvas = document.getElementById("myCanvas");
+    canvas = window.document.getElementById("myCanvas");
     ctx = canvas.getContext("2d");
     left = canvas.getBoundingClientRect().left;
     top = canvas.getBoundingClientRect().top;
@@ -32,25 +32,24 @@
     square_button_bounds = [10, 420, 20, 20];
     circle_button_bounds = [50, 430, 20, 20];
     color_bounds = [100, 420, 500, 20];
-    paint.draw_square(ctx, drawing_bounds, "blue", 4, "white");
-    paint.draw_square(ctx, square_button_bounds, "black", 4, "black");
-    paint.draw_circle(ctx,  circle_button_bounds, "black", 4, "black");
-    paint.draw_colors(ctx, color_bounds);
-
-    window.removeEventListener('load', init);
+    
+    paint.draw_screen(ctx, drawing_bounds, square_button_bounds, circle_button_bounds, color_bounds);
+    removeEventListener('load', init);
   };
 
-  var edit_shape = function(x, y){
+  var add_shape = function(x, y){
     size = [5, 5, 10, 10];
     size[0] = x - left;
     size[1] = y - top;
-    if (shape=="square"){
-      paint.draw_square(ctx, size, line_color, 1, fill_color);
+    let fname = "draw_" + shape;
+    if (paint.hasOwnProperty(fname)) {
+      let f = paint[fname];
+      if (typeof f === "function"){
+        f(ctx, size, line_color, 1, fill_color);
+        return;
+      }
     }
-    else if (shape=="circle"){
-      paint.draw_circle(ctx, size, line_color, 1, fill_color);
-    }
-    
+    throw "shape doesn't exist! (" + shape + ")";
   }
   
   var determine_clicked_object = function(event){
@@ -69,7 +68,7 @@
   var respond_to_click = function(clicked_object){
     console.log(clicked_object)
     if (clicked_object===1){
-      edit_shape(x, y)
+      add_shape(x, y)
     } else if (clicked_object===2){
       shape = "square"
     } else if (clicked_object===3){
